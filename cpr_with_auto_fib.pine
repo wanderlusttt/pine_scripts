@@ -227,8 +227,8 @@ PlotShapeDown = ta.cross(STrendline, close) and close < STrendline
 plotshape(PlotSTrend ? PlotShapeUp : na, 'Up Arrow', shape.triangleup, location.belowbar, color.new(color.green, 0), 0)
 plotshape(PlotSTrend ? PlotShapeDown : na, 'Down Arrow', shape.triangledown, location.abovebar, color.new(color.red, 0), 0)
 
-AutoFibRet = input(title='Auto Fibonacci Retracement', defval = true)
 // Auto Fibonacci Retracement
+AutoFibRet = input(title='Auto Fibonacci Retracement', defval = true)
 devTooltip = "Deviation is a multiplier that affects how much the price should deviate from the previous pivot in order for the bar to become a new pivot."
 depthTooltip = "The minimum number of bars that will be taken into account when calculating the indicator."
 // pivots threshold
