@@ -2,7 +2,7 @@
 // © GuruprasadMeduri & Wanderlusttt
 //@version=5
 
-indicator('CPR + Auto Fibonacci Retracement', overlay = true)
+indicator(title='CPR + Auto Fibonacci Retracement', shorttitle='CPR & AFR', overlay = true)
 //***************GUIDE***********************************
 //CPR - Applicable only for daily pivots
 //CPR - All 3 lines display enabled by default
