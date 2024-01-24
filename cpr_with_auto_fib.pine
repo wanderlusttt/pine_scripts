@@ -187,27 +187,27 @@ plot(MonthlyS3R3 ? MR3 : na, title='M-R3', color=MR3Color, style=plot.style_circ
 //*****************************INDICATORs**************************
 
 //SMA
-PlotSMA = input(title='Plot SMA?', defval=true)
+PlotSMA = input(title='Plot SMA?', defval=false)
 SMALength = input(title='SMA Length', defval=50)
 SMASource = input(title='SMA Source', defval=close)
 SMAvg = ta.sma(SMASource, SMALength)
 plot(PlotSMA ? SMAvg : na, color=color.new(color.orange, 0), title='SMA')
 
 //EMA
-PlotEMA = input(title='Plot EMA?', defval=true)
+PlotEMA = input(title='Plot EMA?', defval=false)
 EMALength = input(title='EMA Length', defval=50)
 EMASource = input(title='EMA Source', defval=close)
 EMAvg = ta.ema(EMASource, EMALength)
 plot(PlotEMA ? EMAvg : na, color=color.new(color.red, 0), title='EMA')
 
 //VWAP
-PlotVWAP = input(title='Plot VWAP?', defval=true)
+PlotVWAP = input(title='Plot VWAP?', defval=false)
 VWAPSource = input(title='VWAP Source', defval=close)
 VWAPrice = ta.vwap(VWAPSource)
 plot(PlotVWAP ? VWAPrice : na, color=color.new(color.teal, 0), title='VWAP')
 
 //SuperTrend
-PlotSTrend = input(title='Plot Super Trend?', defval=true)
+PlotSTrend = input(title='Plot Super Trend?', defval=false)
 InputFactor = input.int(3, minval=1, maxval=100, title='Factor')
 InputLength = input.int(10, minval=1, maxval=100, title='Length')
 BasicUpperBand = hl2 - (InputFactor * ta.atr(InputLength))
