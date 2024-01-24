@@ -68,7 +68,7 @@ BCColour = DayBC != DayBC[1] ? na : color.blue
 TCColour = DayTC != DayTC[1] ? na : color.blue
 
 //Plotting daywise CPR
-plot(DayPivot, title='CP', color=CPColour, style=plot.style_linebr, linewidth=1)
+plot(CPRPlot ? DayPivot : na, title='CP', color=CPColour, style=plot.style_line, linewidth=1)
 plot(CPRPlot ? DayBC : na, title='BC', color=BCColour, style=plot.style_line, linewidth=1)
 plot(CPRPlot ? DayTC : na, title='TC', color=TCColour, style=plot.style_line, linewidth=1)
 
