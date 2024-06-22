@@ -3,8 +3,8 @@ indicator(title="Zero Lag MACD with ZLEMA", shorttitle="ZLMACD+ZLEMA+ATR", overl
 
 // ---------------------- ZL MACD & ZLEMA BEGINS  ----------------------//
 // Input parameters
-fastLength = input.int(12, title="Fast EMA Length")
-slowLength = input.int(26, title="Slow EMA Length")
+fastLength = input.int(9, title="Fast EMA Length")
+slowLength = input.int(21, title="Slow EMA Length")
 signalSmoothing = input.int(9, title="Signal Smoothing")
 
 // Function to calculate ZLEMA
