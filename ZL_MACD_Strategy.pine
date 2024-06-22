@@ -21,8 +21,25 @@ macdLine = fastZLEMA - slowZLEMA
 // Smoothing the signal line using ZLEMA
 signalLine = zlema(macdLine, signalSmoothing)
 
-// MACD histogram
-histogram = macdLine - signalLine
+// Track crossover and crossunder events
+crossoverCondition = ta.crossover(macdLine, signalLine)
+crossunderCondition = ta.crossunder(macdLine, signalLine)
+
+// Entry conditions
+longCondition = crossoverCondition and close >= open[1]
+shortCondition = crossunderCondition and close <= open[1]
+
+// Execute trades
+if (longCondition)
+    strategy.entry("Long", strategy.long)
+if (shortCondition)
+    strategy.entry("Short", strategy.short)
+
+// Exit trades
+if (longCondition and crossunderCondition)
+    strategy.close("Long")
+if (shortCondition and crossoverCondition)
+    strategy.close("Short")
 
 // Plotting MACD and signal line
 plot(macdLine, color=color.blue, title="MACD Line")
@@ -31,31 +48,6 @@ plot(signalLine, color=color.red, title="Signal Line")
 // Plotting zero line
 hline(0, "Zero Line", color=color.gray)
 
-// Plotting histogram
+// MACD histogram
+histogram = macdLine - signalLine
 plot(histogram, style=plot.style_histogram, color=(histogram >= 0 ? color.green : color.red), title="Histogram")
-
-// Strategy logic
-var bool longCondition = na
-var bool shortCondition = na
-
-if (macdLine > signalLine and not longCondition)
-    longCondition := true
-if (macdLine < signalLine and not shortCondition)
-    shortCondition := true
-
-if (macdLine < signalLine and longCondition)
-    longCondition := false
-if (macdLine > signalLine and shortCondition)
-    shortCondition := false
-
-// Entry and exit conditions
-if (longCondition)
-    strategy.entry("Long", strategy.long)
-if (shortCondition)
-    strategy.entry("Short", strategy.short)
-
-// Exit conditions
-if (longCondition and macdLine < signalLine)
-    strategy.close("Long")
-if (shortCondition and macdLine > signalLine)
-    strategy.close("Short")
