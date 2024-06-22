@@ -1,10 +1,12 @@
 //@version=5
-strategy("Zero Lag MACD with ZLEMA Strategy", overlay=true)
+strategy("Zero Lag MACD with ZLEMA Strategy + ATR Stop Loss", overlay=true)
 
 // Input parameters
 fastLength = input.int(12, title="Fast EMA Length")
 slowLength = input.int(26, title="Slow EMA Length")
 signalSmoothing = input.int(9, title="Signal Smoothing")
+atrLength = input.int(14, title="ATR Length")
+atrMultiplier = input.float(2.0, title="ATR Multiplier for Stop Loss")
 
 // Function to calculate ZLEMA
 zlema(source, length) =>
@@ -29,17 +31,17 @@ crossunderCondition = ta.crossunder(macdLine, signalLine)
 longCondition = crossoverCondition and close >= open[1]
 shortCondition = crossunderCondition and close <= open[1]
 
-// Execute trades
+// Calculate ATR for stop loss
+atrValue = ta.atr(atrLength)
+
+// Execute trades with stop loss based on ATR
 if (longCondition)
     strategy.entry("Long", strategy.long)
+    strategy.exit("Long Stop", "Long", stop=close - atrMultiplier * atrValue)
+
 if (shortCondition)
     strategy.entry("Short", strategy.short)
-
-// Exit trades
-if (longCondition and crossunderCondition)
-    strategy.close("Long")
-if (shortCondition and crossoverCondition)
-    strategy.close("Short")
+    strategy.exit("Short Stop", "Short", stop=close + atrMultiplier * atrValue)
 
 // Plotting MACD and signal line
 plot(macdLine, color=color.blue, title="MACD Line")
