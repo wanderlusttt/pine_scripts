@@ -1,12 +1,11 @@
 //@version=5
-indicator("Zero Lag MACD with ZLEMA Indicator + ATR Stop Loss", overlay=false)
+indicator(title="Zero Lag MACD with ZLEMA", shorttitle="ZLMACD+ZLEMA+ATR", overlay=false)
 
+// ---------------------- ZL MACD & ZLEMA BEGINS  ----------------------//
 // Input parameters
-fastLength = input.int(9, title="Fast EMA Length")
-slowLength = input.int(21, title="Slow EMA Length")
+fastLength = input.int(12, title="Fast EMA Length")
+slowLength = input.int(26, title="Slow EMA Length")
 signalSmoothing = input.int(9, title="Signal Smoothing")
-atrLength = input.int(14, title="ATR Length")
-atrMultiplier = input.float(2.0, title="ATR Multiplier for Stop Loss")
 
 // Function to calculate ZLEMA
 zlema(source, length) =>
@@ -23,30 +22,9 @@ macdLine = fastZLEMA - slowZLEMA
 // Smoothing the signal line using ZLEMA
 signalLine = zlema(macdLine, signalSmoothing)
 
-// Track crossover and crossunder events
-crossoverCondition = ta.crossover(macdLine, signalLine)
-crossunderCondition = ta.crossunder(macdLine, signalLine)
-
-// Entry conditions for long and short
-longCondition = crossoverCondition and close >= open
-shortCondition = crossunderCondition and close <= open
-
-// Calculate ATR for stop loss
-atrValue = ta.atr(atrLength)
-
-// Execute trades with stop loss based on ATR
-longStop = close - atrMultiplier * atrValue
-shortStop = close + atrMultiplier * atrValue
-
-// Plotting MACD and signal line with adjusted scaling and offset
-plot(macdLine, title="MACD Line", color=color.green, linewidth=2)
-plot(signalLine, title="Signal Line", color=color.red, linewidth=2)
-
-// Calculate and plot Exponential Moving Average (EMA) on the main chart
-fastEMA = ta.ema(close, fastLength)
-slowEMA = ta.ema(close, slowLength)
-plot(fastEMA, title="Fast EMA", color=color.green, linewidth=2)
-plot(slowEMA, title="Slow EMA", color=color.red, linewidth=2)
+// Plotting MACD and signal line
+plot(macdLine, color=color.green, title="MACD Line",  linewidth=2)
+plot(signalLine, color=color.red, title="Signal Line",  linewidth=2)
 
 // Plotting zero line
 hline(0, "Zero Line", color=color.gray)
@@ -55,6 +33,25 @@ hline(0, "Zero Line", color=color.gray)
 histogram = macdLine - signalLine
 plot(histogram, style=plot.style_columns, color=(histogram >= 0 ? color.green : color.red), title="Histogram")
 
-// Plotting stop loss levels in the same pane as MACD
-plot(longCondition ? longStop : na, title="Long Stop Loss", color=color.green, linewidth=1, offset=-1)
-plot(shortCondition ? shortStop : na, title="Short Stop Loss", color=color.red, linewidth=1, offset=-1)
+// ----------------------  ZL MACD & ZLEMA ENDS   ----------------------//
+
+// ----------------------        ATR STARTS       ----------------------//
+// Input parameters
+atrLength = input.int(14, title="ATR Length")
+atrMultiplier = input.float(2.0, title="ATR Multiplier for Stop Loss")
+
+// Calculate ATR for stop loss
+atrValue = ta.atr(atrLength)
+
+// Calculate stop loss levels
+longStop = close - atrMultiplier * atrValue
+shortStop = close + atrMultiplier * atrValue
+
+// Plot stop loss levels on main price pane
+// plot(longStop, color=color.red, title="Long Stop Loss", linewidth=2)
+// plot(shortStop, color=color.green, title="Short Stop Loss", linewidth=2)
+
+// Plot ATR in a separate pane
+plot(atrValue, color=color.black, title="ATR", style=plot.style_line, linewidth=2)
+
+// ----------------------        ATR ENDS       ----------------------//
