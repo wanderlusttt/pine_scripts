@@ -1,0 +1,38 @@
+//@version=5
+
+// ----------------------        EMA BEGINS       ----------------------//
+indicator("EMA", overlay=true)
+
+// Input parameters
+fastLength = input.int(9, title="Fast EMA Length")
+slowLength = input.int(21, title="Slow EMA Length")
+signalSmoothing = input.int(9, title="Signal Smoothing")
+
+// Calculate and plot Exponential Moving Average (EMA) on the main chart
+fastEMA = ta.ema(close, fastLength)
+slowEMA = ta.ema(close, slowLength)
+plot(fastEMA, title="Fast EMA", color=color.green, linewidth=2)
+plot(slowEMA, title="Slow EMA", color=color.red, linewidth=2)
+
+// ----------------------        EMA ENDS       ----------------------//
+
+// ----------------------        ATR BEGINS       ----------------------//
+// Input parameters
+atrLength = input.int(14, title="ATR Length")
+atrMultiplier = input.float(2.0, title="ATR Multiplier for Stop Loss")
+
+// Calculate ATR for stop loss
+atrValue = ta.atr(atrLength)
+
+// Calculate stop loss levels
+longStop = close - atrMultiplier * atrValue
+shortStop = close + atrMultiplier * atrValue
+
+// Plot stop loss levels on main price pane
+plot(longStop, color=color.black, title="Long Stop Loss", linewidth=2)
+plot(shortStop, color=color.black, title="Short Stop Loss", linewidth=2)
+
+// Plot ATR in a separate pane
+// plot(atrValue, color=color.blue, title="ATR", style=plot.style_line, linewidth=1)
+
+// ----------------------        ATR ENDS       ----------------------//
