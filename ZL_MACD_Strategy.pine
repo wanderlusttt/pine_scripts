@@ -2,8 +2,8 @@
 strategy("Zero Lag MACD with ZLEMA Strategy + ATR Stop Loss", overlay=true)
 
 // Input parameters
-fastLength = input.int(9, title="Fast EMA Length")
-slowLength = input.int(21, title="Slow EMA Length")
+fastLength = input.int(12, title="Fast EMA Length")
+slowLength = input.int(26, title="Slow EMA Length")
 signalSmoothing = input.int(9, title="Signal Smoothing")
 atrLength = input.int(14, title="ATR Length")
 atrMultiplier = input.float(2.0, title="ATR Multiplier for Stop Loss")
@@ -43,9 +43,16 @@ if (shortCondition)
     strategy.entry("Short", strategy.short)
     strategy.exit("Short Stop", "Short", stop=close + atrMultiplier * atrValue)
 
-// Plotting MACD and signal line
-plot(macdLine, color=color.blue, title="MACD Line")
-plot(signalLine, color=color.red, title="Signal Line")
+// Plotting MACD and signal line with adjusted scaling and offset
+plot(macdLine, title="MACD Line", color=color.green, style=plot.style_histogram, linewidth=2, offset=-1)
+plot(signalLine, title="Signal Line", color=color.red, linewidth=2, offset=-1)
+
+// Calculate and plot Exponential Moving Average (EMA) on the main chart
+fastEMA = ta.ema(close, fastLength)
+slowEMA = ta.ema(close, slowLength)
+plot(fastEMA, title="Fast EMA", color=color.green, linewidth=2)
+plot(slowEMA, title="Slow EMA", color=color.red, linewidth=2)
+
 
 // Plotting zero line
 hline(0, "Zero Line", color=color.gray)
