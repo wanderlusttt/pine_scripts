@@ -44,7 +44,7 @@ if (shortCondition)
     strategy.exit("Short Stop", "Short", stop=close + atrMultiplier * atrValue)
 
 // Plotting MACD and signal line with adjusted scaling and offset
-plot(macdLine, title="MACD Line", color=color.green, style=plot.style_histogram, linewidth=2, offset=-1)
+plot(macdLine, title="MACD Line", color=color.green, linewidth=2, offset=-1)
 plot(signalLine, title="Signal Line", color=color.red, linewidth=2, offset=-1)
 
 // Calculate and plot Exponential Moving Average (EMA) on the main chart
@@ -59,4 +59,4 @@ hline(0, "Zero Line", color=color.gray)
 
 // MACD histogram
 histogram = macdLine - signalLine
-plot(histogram, style=plot.style_histogram, color=(histogram >= 0 ? color.green : color.red), title="Histogram")
+plot(histogram, style=plot.style_columns, color=(histogram >= 0 ? color.green : color.red), title="Histogram")
