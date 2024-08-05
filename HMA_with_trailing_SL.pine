@@ -1,0 +1,73 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © wanderlusttt
+
+//@version=5
+//@version=5
+strategy("HMA Strategy with Trailing Stop (Long and Short)", overlay=true)
+
+// Inputs for HMA length and source
+hma_length = input.int(21, title="HMA Length", minval=1)
+source = input.source(close, title="Source")
+
+// User input for the security/ticker name
+user_ticker = input.string("BINANCE:BTCUSDT", title="Ticker for Trailing Stop", tooltip="Enter the ticker symbol to apply the trailing stop logic")
+
+// Trailing stop settings
+trail_step = input.float(2.0, title="Trail Step", tooltip="Points to trail for every 10 points increase")
+trail_trigger = input.float(10.0, title="Trail Trigger", tooltip="Points increase needed to adjust the trailing stop")
+
+// Calculate Hull Moving Average
+hull_ma = ta.wma(2 * ta.wma(source, hma_length / 2) - ta.wma(source, hma_length), math.round(math.sqrt(hma_length)))
+
+// Plot HMA
+plot(hull_ma, color=color.blue, linewidth=2, title="Hull MA")
+
+// Generate Buy and Sell signals
+buy_signal = ta.crossover(close, hull_ma)
+sell_signal = ta.crossunder(close, hull_ma)
+
+// Plot Buy and Sell signals
+plotshape(series=buy_signal, title="Buy Signal", location=location.belowbar, color=color.green, style=shape.labelup, text="BUY")
+plotshape(series=sell_signal, title="Sell Signal", location=location.abovebar, color=color.red, style=shape.labeldown, text="SELL")
+
+// Initialize trailing stop variables
+var float trail_start = na
+var float trail_stop = na
+
+// Detect if we're trading the specified ticker
+is_user_ticker = (syminfo.ticker == user_ticker)
+
+// Apply trailing stop logic if it's the user-specified ticker
+if is_user_ticker
+    if strategy.opentrades > 0
+        // Set initial trailing stop
+        if trail_start == na
+            trail_start := strategy.opentrades.entry_price(strategy.opentrades-1)
+            trail_stop := trail_start - trail_step
+        
+        // Update trailing stop
+        if close > trail_start + trail_trigger
+            trail_stop := trail_stop + trail_step
+            trail_start := close
+    
+    // Close the position if the price drops below the trailing stop
+    if close <= trail_stop
+        strategy.close("Buy")
+
+// Strategy entry and exit conditions
+
+// Initiate Long Trade
+if buy_signal
+    strategy.entry("Buy", strategy.long)
+
+// Initiate Short Trade
+if sell_signal
+    strategy.entry("Sell", strategy.short)
+
+// Close Long Trade on Sell Signal (if long position is open)
+if sell_signal and strategy.opentrades > 0 and strategy.opentrades.entry_id(strategy.opentrades - 1) == "Buy"
+    strategy.close("Buy")
+
+// Close Short Trade on Buy Signal (if short position is open)
+if buy_signal and strategy.opentrades > 0 and strategy.opentrades.entry_id(strategy.opentrades - 1) == "Sell"
+    strategy.close("Sell")
