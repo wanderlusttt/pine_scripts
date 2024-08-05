@@ -1,20 +1,16 @@
-// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
-// © wanderlusttt
-
 //@version=5
-//@version=5
-strategy("HMA Strategy with Trailing Stop (Long and Short)", overlay=true)
+strategy("HMA Strategy with Optional Trailing Stop (Long and Short)", overlay=true)
 
 // Inputs for HMA length and source
-hma_length = input.int(21, title="HMA Length", minval=1)
+hma_length = input.int(15, title="HMA Length", minval=1)
 source = input.source(close, title="Source")
 
-// User input for the security/ticker name
-user_ticker = input.string("BINANCE:BTCUSDT", title="Ticker for Trailing Stop", tooltip="Enter the ticker symbol to apply the trailing stop logic")
-
 // Trailing stop settings
+enable_trailing = input.bool(true, title="Enable Trailing Stop", tooltip="Enable or disable trailing stop functionality")
 trail_step = input.float(2.0, title="Trail Step", tooltip="Points to trail for every 10 points increase")
 trail_trigger = input.float(10.0, title="Trail Trigger", tooltip="Points increase needed to adjust the trailing stop")
+
+
 
 // Calculate Hull Moving Average
 hull_ma = ta.wma(2 * ta.wma(source, hma_length / 2) - ta.wma(source, hma_length), math.round(math.sqrt(hma_length)))
@@ -30,29 +26,42 @@ sell_signal = ta.crossunder(close, hull_ma)
 plotshape(series=buy_signal, title="Buy Signal", location=location.belowbar, color=color.green, style=shape.labelup, text="BUY")
 plotshape(series=sell_signal, title="Sell Signal", location=location.abovebar, color=color.red, style=shape.labeldown, text="SELL")
 
-// Initialize trailing stop variables
-var float trail_start = na
-var float trail_stop = na
+// Initialize trailing stop variables for long and short trades
+var float long_trail_start = na
+var float long_trail_stop = na
+var float short_trail_start = na
+var float short_trail_stop = na
 
-// Detect if we're trading the specified ticker
-is_user_ticker = (syminfo.ticker == user_ticker)
-
-// Apply trailing stop logic if it's the user-specified ticker
-if is_user_ticker
+// Apply trailing stop logic if enabled
+if enable_trailing
     if strategy.opentrades > 0
-        // Set initial trailing stop
-        if trail_start == na
-            trail_start := strategy.opentrades.entry_price(strategy.opentrades-1)
-            trail_stop := trail_start - trail_step
-        
-        // Update trailing stop
-        if close > trail_start + trail_trigger
-            trail_stop := trail_stop + trail_step
-            trail_start := close
-    
-    // Close the position if the price drops below the trailing stop
-    if close <= trail_stop
-        strategy.close("Buy")
+        if strategy.opentrades.entry_id(strategy.opentrades - 1) == "Buy"
+            if long_trail_start == na
+                long_trail_start := strategy.opentrades.entry_price(strategy.opentrades - 1)
+                long_trail_stop := long_trail_start - trail_step
+            
+            // Update trailing stop for long trades
+            if close > long_trail_start + trail_trigger
+                long_trail_stop := long_trail_stop + trail_step
+                long_trail_start := close
+            
+            // Close the long position if the price drops below the trailing stop
+            if close <= long_trail_stop
+                strategy.close("Buy")
+
+        if strategy.opentrades.entry_id(strategy.opentrades - 1) == "Sell"
+            if short_trail_start == na
+                short_trail_start := strategy.opentrades.entry_price(strategy.opentrades - 1)
+                short_trail_stop := short_trail_start + trail_step
+            
+            // Update trailing stop for short trades
+            if close < short_trail_start - trail_trigger
+                short_trail_stop := short_trail_stop - trail_step
+                short_trail_start := close
+            
+            // Close the short position if the price rises above the trailing stop
+            if close >= short_trail_stop
+                strategy.close("Sell")
 
 // Strategy entry and exit conditions
 
